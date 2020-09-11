@@ -1,0 +1,41 @@
+const FOLLOW_BUTTON_TEXT = 'Follow' // CHANGE THIS TO YOUR LANGUAGE
+const MAX_ATTEMPTS_PER_FOLLOW = 3 // BUMP THIS IF YOU HAVE WOODEN PC
+
+const followSomebody = () => {
+    const followButton = document
+        .evaluate(`//button[text()="${FOLLOW_BUTTON_TEXT}"]`, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+        .singleNodeValue
+    if (followButton) {
+        let attempts = 1
+        while (attempts < MAX_ATTEMPTS_PER_FOLLOW && !followButton) {
+            console.log(`Attempted to find followButton but could not. Retry #${attempts++}`)
+            followButton = document.evaluate(`//button[text()="${FOLLOW_BUTTON_TEXT}"]`, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
+        }
+        if (attempts < MAX_ATTEMPTS_PER_FOLLOW) {
+            console.log('Found follow button. Scrolling and clicking ...')
+            followButton.scrollIntoView(true)
+            followButton.click()
+        } else {
+            console.log(`Retried ${MAX_ATTEMPTS_PER_FOLLOW} times and didn't succeed`)
+        }
+        return false
+    }
+    return true
+}
+
+const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+const randomTimeout = () => (Math.floor((Math.random() * 10) + 1) * 1000) + 20000
+
+const followEveryone = async () => {
+    let shouldStop = false
+    while (!shouldStop) {
+        shouldStop = followSomebody()
+        const followTimeout = randomTimeout()
+        console.log(`Waiting ${followTimeout} milliseconds. Should stop: ${shouldStop}.`)
+        await timeout(followTimeout)
+    }
+    console.log('You cannot follow anymore.')
+}
+
+followEveryone()
